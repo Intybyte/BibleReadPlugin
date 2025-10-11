@@ -29,6 +29,7 @@ public class AccessManager {
 
     public static void initialize() {
         instance = new AccessManager();
+        ConnectionHandler.getInstance().getConnectionExecutor().execute(AccessManager.getInstance()::updateTranslations);
     }
 
     private AccessManager() {}

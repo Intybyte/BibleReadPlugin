@@ -60,7 +60,6 @@ public class ConnectionHandler {
             int poolSize = ConnectionUtil.calculateThreadPoolSize(totalLatency);
 
             this.connectionExecutor = Executors.newFixedThreadPool(poolSize);
-            this.connectionExecutor.execute(AccessManager.getInstance()::updateTranslations);
         } catch (Exception e) {
             e.printStackTrace();
             this.connectionExecutor = Executors.newFixedThreadPool(ATTEMPTS); // Fallback
