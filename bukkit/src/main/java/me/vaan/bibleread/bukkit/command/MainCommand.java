@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 @CommandAlias("bibleread")
 @Description("Main bibleread command")
@@ -37,6 +38,7 @@ public class MainCommand extends BaseCommand {
     public class LanguageCommand extends BaseCommand {
 
         @Subcommand("getBooks")
+        @CommandCompletion("@languages")
         public void getBooks(Player player, String language) {
             Map<String, List<Translation>> languageMap = AccessManager.getInstance().getTranslations().getLanguageMap();
             List<Translation> tls = languageMap.get(language);
@@ -45,7 +47,8 @@ public class MainCommand extends BaseCommand {
                 return;
             }
 
-
+            String message = tls.stream().map(Translation::getId).collect(Collectors.joining(", "));
+            player.sendMessage(message);
         }
     }
 
