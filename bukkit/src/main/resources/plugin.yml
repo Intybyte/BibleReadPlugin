@@ -1,0 +1,4 @@
+name: BibleReadPlugin
+version: '${version}'
+main: me.vaan.bibleread.bukkit.BibleReadPlugin
+api-version: '1.16'
