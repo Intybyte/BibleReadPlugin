@@ -1,8 +1,9 @@
 plugins {
     id 'java'
+    id 'com.gradleup.shadow' version '8.3.0'
 }
 
-group = 'me.vaan.bibleread.bukkit'
+group = 'me.vaan.bibleread.spigot'
 version = '1.0.0'
 
 repositories {
@@ -22,8 +23,9 @@ repositories {
 
 dependencies {
     compileOnly "org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT"
-    compileOnly(project(":api"))
-    compileOnly "co.aikar:acf-bukkit:0.5.1-SNAPSHOT"
+    implementation(project(":api"))
+    implementation(project(":bukkit"))
+    implementation "co.aikar:acf-bukkit:0.5.1-SNAPSHOT"
 }
 
 def targetJavaVersion = 8
@@ -41,5 +43,22 @@ tasks.withType(JavaCompile).configureEach {
 
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
         options.release.set(targetJavaVersion)
+    }
+}
+
+shadowJar {
+    relocate 'co.aikar.commands', 'me.vaan.bibleread.shaded.acf'
+    relocate 'co.aikar.locales', 'me.vaan.bibleread.shaded.locales'
+    relocate 'com.google.code.gson', 'me.vaan.bibleread.shaded.gson'
+}
+
+build.dependsOn shadowJar
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
     }
 }

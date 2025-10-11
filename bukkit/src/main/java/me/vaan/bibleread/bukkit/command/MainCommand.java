@@ -9,7 +9,7 @@ import co.aikar.commands.annotation.Subcommand;
 import me.vaan.bibleread.api.access.AccessManager;
 import me.vaan.bibleread.api.data.chapter.TranslationBookChapter;
 import me.vaan.bibleread.api.data.translation.Translation;
-import me.vaan.bibleread.bukkit.BibleReadPlugin;
+import me.vaan.bibleread.bukkit.PluginHolder;
 import me.vaan.bibleread.bukkit.parser.BookParser;
 import me.vaan.bibleread.api.data.access.PlayerDataManager;
 import me.vaan.bibleread.api.data.access.ChapterPointer;
@@ -93,7 +93,7 @@ public class MainCommand extends BaseCommand {
                 return;
             }
 
-            Executor mainExecutor = command -> Bukkit.getScheduler().runTask(BibleReadPlugin.getInstance(), command);
+            Executor mainExecutor = command -> Bukkit.getScheduler().runTask(PluginHolder.getInstance(), command);
             AccessManager.getInstance().getTranslationBooks(translation).thenAcceptAsync((translationBooksOptional) -> {
                 if (!translationBooksOptional.isPresent()) {
                     player.sendMessage("Error");
@@ -123,7 +123,7 @@ public class MainCommand extends BaseCommand {
                 return;
             }
 
-            Executor mainExecutor = command -> Bukkit.getScheduler().runTask(BibleReadPlugin.getInstance(), command);
+            Executor mainExecutor = command -> Bukkit.getScheduler().runTask(PluginHolder.getInstance(), command);
             AccessManager.getInstance().getChapter(pair.getTranslationId(), pair.getBookId(), chapterId).thenAcceptAsync( (chapterOptional) -> {
                 if (!chapterOptional.isPresent()) {
                     player.sendMessage("Error");
@@ -147,7 +147,7 @@ public class MainCommand extends BaseCommand {
                 return;
             }
 
-            Executor mainExecutor = command -> Bukkit.getScheduler().runTask(BibleReadPlugin.getInstance(), command);
+            Executor mainExecutor = command -> Bukkit.getScheduler().runTask(PluginHolder.getInstance(), command);
             AccessManager.getInstance().getChapter(pair.getTranslationId(), pair.getBookId(), chapterId).thenAcceptAsync( (chapterOptional) -> {
                 if (!chapterOptional.isPresent()) {
                     player.sendMessage("Error");
@@ -165,7 +165,7 @@ public class MainCommand extends BaseCommand {
 
 
     @Subcommand("update")
-    @CommandPermission("biblereadplugin.update")
+    @CommandPermission("PluginHolder.update")
     public class Update extends BaseCommand {
 
         @Subcommand("data")

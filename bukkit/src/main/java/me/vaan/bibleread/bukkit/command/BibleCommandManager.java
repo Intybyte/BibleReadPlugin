@@ -1,44 +1,30 @@
-package me.vaan.bibleread.bukkit;
+package me.vaan.bibleread.bukkit.command;
 
+import co.aikar.commands.BukkitCommandCompletionContext;
 import co.aikar.commands.BukkitCommandManager;
-import lombok.Getter;
+import co.aikar.commands.CommandCompletions;
 import me.vaan.bibleread.api.access.AccessManager;
-import me.vaan.bibleread.api.connection.ConnectionHandler;
 import me.vaan.bibleread.api.data.access.PlayerDataManager;
-import me.vaan.bibleread.api.data.book.TranslationBooks;
-import me.vaan.bibleread.api.file.FileManager;
-import me.vaan.bibleread.bukkit.command.MainCommand;
 import me.vaan.bibleread.api.data.access.TranslationBookPair;
+import me.vaan.bibleread.api.data.book.TranslationBooks;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
 import java.util.Collections;
 import java.util.Optional;
 
-public class BibleReadPlugin extends JavaPlugin {
-    @Getter
-    private static BibleReadPlugin instance;
-
-    @Override
-    public void onLoad() {
-        instance = this;
-        FileManager.initialize(getDataFolder());
-        ConnectionHandler.initialize();
-        AccessManager.initialize();
-        PlayerDataManager.load();
-    }
-
-    @Override
-    public void onEnable() {
-        BukkitCommandManager bcm = new BukkitCommandManager(this);
+public class BibleCommandManager extends BukkitCommandManager {
+    public BibleCommandManager(Plugin plugin) {
+        super(plugin);
         AccessManager accessManager = AccessManager.getInstance();
 
-        bcm.getCommandCompletions().registerAsyncCompletion(
+        CommandCompletions<BukkitCommandCompletionContext> commandCompletions = this.getCommandCompletions();
+        commandCompletions.registerAsyncCompletion(
             "translations",
             context -> accessManager.getTranslations().getTranslationIds()
         );
 
-        bcm.getCommandCompletions().registerAsyncCompletion(
+        commandCompletions.registerAsyncCompletion(
             "books",
             context -> {
                 Player player = context.getPlayer();
@@ -55,16 +41,9 @@ public class BibleReadPlugin extends JavaPlugin {
             }
         );
 
-        bcm.getCommandCompletions().registerAsyncCompletion(
+        commandCompletions.registerAsyncCompletion(
             "languages",
             context -> accessManager.getTranslations().getLanguageMap().keySet()
         );
-
-        bcm.registerCommand(new MainCommand());
-    }
-
-    @Override
-    public void onDisable() {
-        PlayerDataManager.save();
     }
 }
