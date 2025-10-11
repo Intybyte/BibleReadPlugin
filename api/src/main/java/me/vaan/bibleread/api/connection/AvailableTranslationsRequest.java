@@ -53,4 +53,11 @@ public class AvailableTranslationsRequest extends RemoteCachedRequest<AvailableT
 
         return languageMap;
     }
+
+    @Override
+    public void update() {
+        translationIds.clear();
+        languageMap.clear();
+        super.update();
+    }
 }
