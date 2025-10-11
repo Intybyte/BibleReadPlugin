@@ -115,8 +115,8 @@ public class MainCommand extends BaseCommand {
     @Subcommand("chapter")
     public class ChapterCommand extends BaseCommand {
 
-        @Subcommand("get")
-        public void get(Player player, int chapterId) {
+        @Subcommand("openBook")
+        public void openBook(Player player, int chapterId) {
             TranslationBookPair pair = PlayerDataManager.getData(player.getUniqueId());
             if (!pair.isValid()) {
                 player.sendMessage("Error");
