@@ -20,6 +20,7 @@ public class ChapterContentParser {
             if (ctn instanceof ChapterHeading) {
                 output.add("§l");
                 output.addAll(ctn.getParsed());
+                output.add("§r");
             } else if (ctn instanceof ChapterVerse) {
                 output.add("§r[" + progressive++ + "]");
                 output.addAll(ctn.getParsed());
