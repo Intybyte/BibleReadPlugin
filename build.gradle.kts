@@ -12,4 +12,11 @@ repositories {
 
 allprojects {
     apply(plugin = "io.freefair.lombok")
+    apply(plugin = "java")
+
+    plugins.withType<JavaPlugin> {
+        tasks.withType<Jar>().configureEach {
+            archiveFileName.set("bibleread-${project.name}-${project.version}.jar")
+        }
+    }
 }
