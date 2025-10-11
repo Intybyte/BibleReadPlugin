@@ -7,7 +7,7 @@ import me.vaan.bibleread.api.connection.ConnectionHandler;
 import me.vaan.bibleread.api.data.book.TranslationBooks;
 import me.vaan.bibleread.api.file.FileManager;
 import me.vaan.bibleread.bukkit.command.MainCommand;
-import me.vaan.bibleread.bukkit.data.TranslationBookPair;
+import me.vaan.bibleread.api.data.access.TranslationBookPair;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -30,9 +30,11 @@ public class BibleReadPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         BukkitCommandManager bcm = new BukkitCommandManager(this);
+        AccessManager accessManager = AccessManager.getInstance();
+
         bcm.getCommandCompletions().registerAsyncCompletion(
             "translations",
-            context -> AccessManager.getInstance().getTranslations().getTranslationIds()
+            context -> accessManager.getTranslations().getTranslationIds()
         );
 
         bcm.getCommandCompletions().registerAsyncCompletion(
@@ -45,11 +47,16 @@ public class BibleReadPlugin extends JavaPlugin {
                 String translation = pair.getTranslationId();
                 if (translation == null) return Collections.emptyList();
 
-                Optional<TranslationBooks> translationBooksOptional = AccessManager.getInstance().getTranslationBooks(translation).join();
-                if(!translationBooksOptional.isPresent()) return Collections.emptyList();
+                Optional<TranslationBooks> translationBooksOptional = accessManager.getTranslationBooks(translation).join();
+                if (!translationBooksOptional.isPresent()) return Collections.emptyList();
 
                 return translationBooksOptional.get().getBookMap().keySet();
             }
+        );
+
+        bcm.getCommandCompletions().registerAsyncCompletion(
+            "languages",
+            context -> accessManager.getTranslations().getLanguageMap().keySet()
         );
 
         bcm.registerCommand(new MainCommand());
