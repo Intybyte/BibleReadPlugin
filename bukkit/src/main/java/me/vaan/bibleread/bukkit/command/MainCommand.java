@@ -6,13 +6,16 @@ import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Subcommand;
+import lombok.var;
 import me.vaan.bibleread.api.access.AccessManager;
 import me.vaan.bibleread.api.connection.ConnectionHandler;
+import me.vaan.bibleread.api.data.book.TranslationBooks;
 import me.vaan.bibleread.api.data.chapter.TranslationBookChapter;
 import me.vaan.bibleread.api.data.chapter.content.ChapterContent;
 import me.vaan.bibleread.bukkit.BibleReadPlugin;
 import me.vaan.bibleread.bukkit.ChapterContentParser;
 import me.vaan.bibleread.bukkit.PlayerDataManager;
+import me.vaan.bibleread.bukkit.data.ChapterPointer;
 import me.vaan.bibleread.bukkit.data.TranslationBookPair;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -28,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -182,12 +186,19 @@ public class MainCommand extends BaseCommand {
 
     }
 
+    private static final HashMap<ChapterPointer, ItemStack> bookMap = new HashMap<>();
     private static ItemStack getChapterBook(TranslationBookPair pair, TranslationBookChapter chapter) {
         ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
+        int number = chapter.getChapter().getNumber();
+        ChapterPointer ptr = new ChapterPointer(pair.getTranslationId(), pair.getBookId(), number);
+        if (bookMap.containsKey(ptr)) {
+            return bookMap.get(ptr);
+        }
+
         try {
 
             BookMeta meta = (BookMeta) book.getItemMeta();
-            meta.setTitle(pair.getBookId());
+            meta.setTitle(chapter.getBook().getCommonName() + " " + number);
             meta.setGeneration(BookMeta.Generation.TATTERED);
             meta.setAuthor("Unknown");
 
@@ -195,7 +206,7 @@ public class MainCommand extends BaseCommand {
             List<String> wordList = new ArrayList<>(2048);
             int pageNumber = 0;
 
-            String collapsed = String.join("", ChapterContentParser.parse(chapter.getChapter()));
+            String collapsed = String.join("", ChapterContentParser.parse(chapter));
             wordList.addAll(
                 Arrays.asList(collapsed.split(" "))
             );
@@ -227,9 +238,6 @@ public class MainCommand extends BaseCommand {
             for (int i = 0; i <= pageNumber; i++) {
                 String page = finalPages.getOrDefault(i, "").trim();
                 if (page.isEmpty()) page = " ";
-
-                System.out.printf("Page %d: %d chars, %d lines\n", i, page.length(), lineBookSize(page));
-                System.out.println(page);
                 meta.addPage(page);
             }
 
@@ -237,6 +245,8 @@ public class MainCommand extends BaseCommand {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        bookMap.put(ptr, book);
         return book;
     }
 
@@ -278,14 +288,14 @@ public class MainCommand extends BaseCommand {
             MapFont.CharacterSprite sprite = MinecraftFont.Font.getChar(c);
             int charWidth = sprite != null ? sprite.getWidth() : 6;
 
-            if (bold && charWidth > 0) {
+            if (bold && charWidth > 0 && c != ' ') {
                 charWidth++; // Bold adds 1 pixel width
             }
 
             pixelWidth += charWidth + 1;
             //  normally it is 114, however it might skip a few words for some reason,
             //  so I am giving it a bit of tolerance
-            if (pixelWidth >= 110) {
+            if (pixelWidth >= 112) {
                 lineCount++;
                 pixelWidth = charWidth + 1;
             }
