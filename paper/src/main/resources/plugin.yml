@@ -1,0 +1,8 @@
+name: BibleReadPlugin
+version: '${version}'
+main: me.vaan.bibleread.paper.BibleReadPlugin
+api-version: '1.16'
+
+permissions:
+  biblereadplugin.update:
+    default: op
