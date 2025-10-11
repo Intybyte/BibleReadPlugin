@@ -18,6 +18,9 @@ public class AvailableTranslationsRequest extends RemoteCachedRequest<AvailableT
     // translation -> book -> chapterSize
     public AvailableTranslationsRequest(String location) {
         super(AvailableTranslations.class, location);
+        // initialize stuff
+        getTranslationIds();
+        getLanguageMap();
     }
 
     public Set<String> getTranslationIds() {

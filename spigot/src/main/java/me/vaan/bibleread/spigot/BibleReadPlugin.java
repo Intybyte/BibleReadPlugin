@@ -29,5 +29,6 @@ public class BibleReadPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         PlayerDataManager.save();
+        ConnectionHandler.shutdown();
     }
 }

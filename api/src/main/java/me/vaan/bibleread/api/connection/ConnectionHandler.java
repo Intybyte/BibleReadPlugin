@@ -24,7 +24,6 @@ public class ConnectionHandler {
 
     private ConnectionHandler() {
         ExecutorService temporary = Executors.newFixedThreadPool(ATTEMPTS);
-        AccessManager.initialize();
 
         List<CompletableFuture<Long>> latencyScans = new ArrayList<>(ATTEMPTS);
         for (int i = 0; i < ATTEMPTS; i++) {
@@ -68,5 +67,10 @@ public class ConnectionHandler {
         } finally {
             temporary.shutdown();
         }
+    }
+
+    public static void shutdown() {
+        instance.connectionExecutor.shutdown();
+        instance = null;
     }
 }
