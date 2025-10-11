@@ -7,7 +7,11 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Subcommand;
 import me.vaan.bibleread.api.access.AccessManager;
+import me.vaan.bibleread.api.data.FieldValueExtractor;
+import me.vaan.bibleread.api.data.book.TranslationBook;
+import me.vaan.bibleread.api.data.book.TranslationBooks;
 import me.vaan.bibleread.api.data.chapter.TranslationBookChapter;
+import me.vaan.bibleread.api.data.translation.AvailableTranslations;
 import me.vaan.bibleread.api.data.translation.Translation;
 import me.vaan.bibleread.bukkit.PluginHolder;
 import me.vaan.bibleread.bukkit.parser.BookParser;
@@ -57,7 +61,28 @@ public class MainCommand extends BaseCommand {
 
         @Subcommand("info")
         public void info(Player player) {
+            TranslationBookPair pair = PlayerDataManager.getData(player.getUniqueId());
+            String translationKey = pair.getTranslationId();
+            if (translationKey == null) {
+                player.sendMessage("Error");
+                return;
+            }
 
+            Executor mainExecutor = command -> Bukkit.getScheduler().runTask(PluginHolder.getInstance(), command);
+            AccessManager.getInstance().getTranslations().getOrQueryData().thenAcceptAsync((translationBooksOptional) -> {
+                if (!translationBooksOptional.isPresent()) {
+                    player.sendMessage("Error");
+                    return;
+                }
+
+                AvailableTranslations availableTranslations = translationBooksOptional.get();
+
+                Translation translation = availableTranslations.getTranslationMap().get(translationKey);
+
+                Map<String, String> fieldMap = FieldValueExtractor.getFieldStringValues(translation, "availableFormats", "listOfBooksApiLink");
+                fieldMap.forEach((f, v) -> player.sendMessage("- " + f + ": " + v));
+
+            }, mainExecutor);
         }
 
         @Subcommand("set")
@@ -80,7 +105,32 @@ public class MainCommand extends BaseCommand {
 
         @Subcommand("info")
         public void info(Player player) {
+            TranslationBookPair pair = PlayerDataManager.getData(player.getUniqueId());
+            String translation = pair.getTranslationId();
+            String bookId = pair.getBookId();
+            if (!pair.isValid()) {
+                player.sendMessage("Error");
+                return;
+            }
 
+            Executor mainExecutor = command -> Bukkit.getScheduler().runTask(PluginHolder.getInstance(), command);
+            AccessManager.getInstance().getTranslationBooks(translation).thenAcceptAsync((translationBooksOptional) -> {
+                if (!translationBooksOptional.isPresent()) {
+                    player.sendMessage("Error");
+                    return;
+                }
+
+                TranslationBooks books = translationBooksOptional.get();
+                TranslationBook book = books.getBookMap().get(bookId);
+                if (book == null) {
+                    player.sendMessage("Error");
+                    return;
+                }
+
+                Map<String, String> fieldMap = FieldValueExtractor.getFieldStringValues(book);
+                fieldMap.forEach((f, v) -> player.sendMessage("- " + f + ": " + v));
+
+            }, mainExecutor);
         }
 
         @Subcommand("set")
