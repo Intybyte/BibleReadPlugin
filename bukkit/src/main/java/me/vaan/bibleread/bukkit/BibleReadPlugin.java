@@ -4,6 +4,7 @@ import co.aikar.commands.BukkitCommandManager;
 import lombok.Getter;
 import me.vaan.bibleread.api.access.AccessManager;
 import me.vaan.bibleread.api.connection.ConnectionHandler;
+import me.vaan.bibleread.api.data.access.PlayerDataManager;
 import me.vaan.bibleread.api.data.book.TranslationBooks;
 import me.vaan.bibleread.api.file.FileManager;
 import me.vaan.bibleread.bukkit.command.MainCommand;
@@ -43,7 +44,7 @@ public class BibleReadPlugin extends JavaPlugin {
                 Player player = context.getPlayer();
                 if (player == null) return Collections.emptyList();
 
-                TranslationBookPair pair = PlayerDataManager.getData(player);
+                TranslationBookPair pair = PlayerDataManager.getData(player.getUniqueId());
                 String translation = pair.getTranslationId();
                 if (translation == null) return Collections.emptyList();
 

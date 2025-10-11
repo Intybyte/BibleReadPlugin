@@ -1,10 +1,8 @@
-package me.vaan.bibleread.bukkit;
+package me.vaan.bibleread.api.data.access;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import me.vaan.bibleread.api.file.FileManager;
-import me.vaan.bibleread.api.data.access.TranslationBookPair;
-import org.bukkit.OfflinePlayer;
 
 import java.io.File;
 import java.io.FileReader;
@@ -18,31 +16,29 @@ public class PlayerDataManager {
     private static Map<UUID, TranslationBookPair> playerMap = new HashMap<>();
     private static final TypeToken<Map<UUID, TranslationBookPair>> type = new TypeToken<Map<UUID, TranslationBookPair>>(){};
 
-    public static void setTranslationBook(OfflinePlayer player, String translation) {
-        UUID uuid = player.getUniqueId();
-        TranslationBookPair pair = playerMap.get(uuid);
+    public static void setTranslationBook(UUID player, String translation) {
+        TranslationBookPair pair = playerMap.get(player);
         if (pair == null) {
-            playerMap.put(uuid, new TranslationBookPair(translation, null));
+            playerMap.put(player, new TranslationBookPair(translation, null));
             return;
         }
 
         pair.setTranslationId(translation);
     }
 
-    public static void setBookId(OfflinePlayer player, String bookId) {
-        UUID uuid = player.getUniqueId();
-        TranslationBookPair pair = playerMap.get(uuid);
+    public static void setBookId(UUID player, String bookId) {
+        TranslationBookPair pair = playerMap.get(player);
         if (pair == null) {
-            playerMap.put(uuid, new TranslationBookPair(null, bookId));
+            playerMap.put(player, new TranslationBookPair(null, bookId));
             return;
         }
 
         pair.setBookId(bookId);
     }
 
-    public static TranslationBookPair getData(OfflinePlayer player) {
-        playerMap.putIfAbsent(player.getUniqueId(), new TranslationBookPair(null, null));
-        return playerMap.get(player.getUniqueId());
+    public static TranslationBookPair getData(UUID player) {
+        playerMap.putIfAbsent(player, new TranslationBookPair(null, null));
+        return playerMap.get(player);
     }
 
     public static void load() {

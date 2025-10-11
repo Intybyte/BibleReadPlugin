@@ -11,7 +11,7 @@ import me.vaan.bibleread.api.data.chapter.TranslationBookChapter;
 import me.vaan.bibleread.api.data.translation.Translation;
 import me.vaan.bibleread.bukkit.BibleReadPlugin;
 import me.vaan.bibleread.bukkit.parser.BookParser;
-import me.vaan.bibleread.bukkit.PlayerDataManager;
+import me.vaan.bibleread.api.data.access.PlayerDataManager;
 import me.vaan.bibleread.api.data.access.ChapterPointer;
 import me.vaan.bibleread.api.data.access.TranslationBookPair;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -69,7 +69,7 @@ public class MainCommand extends BaseCommand {
                 return;
             }
 
-            PlayerDataManager.setTranslationBook(player, translation);
+            PlayerDataManager.setTranslationBook(player.getUniqueId(), translation);
             player.sendMessage("Success");
         }
     }
@@ -86,7 +86,7 @@ public class MainCommand extends BaseCommand {
         @Subcommand("set")
         @CommandCompletion("@books")
         public void set(Player player, String bookId) {
-            TranslationBookPair pair = PlayerDataManager.getData(player);
+            TranslationBookPair pair = PlayerDataManager.getData(player.getUniqueId());
             String translation = pair.getTranslationId();
             if (translation == null) {
                 player.sendMessage("Error");
@@ -105,7 +105,7 @@ public class MainCommand extends BaseCommand {
                     return;
                 }
 
-                PlayerDataManager.setBookId(player, bookId);
+                PlayerDataManager.setBookId(player.getUniqueId(), bookId);
                 player.sendMessage("Success");
 
             }, mainExecutor);
@@ -117,7 +117,7 @@ public class MainCommand extends BaseCommand {
 
         @Subcommand("get")
         public void get(Player player, int chapterId) {
-            TranslationBookPair pair = PlayerDataManager.getData(player);
+            TranslationBookPair pair = PlayerDataManager.getData(player.getUniqueId());
             if (!pair.isValid()) {
                 player.sendMessage("Error");
                 return;
@@ -141,7 +141,7 @@ public class MainCommand extends BaseCommand {
 
         @Subcommand("getBook")
         public void getBook(Player player, int chapterId) {
-            TranslationBookPair pair = PlayerDataManager.getData(player);
+            TranslationBookPair pair = PlayerDataManager.getData(player.getUniqueId());
             if (!pair.isValid()) {
                 player.sendMessage("Error");
                 return;
