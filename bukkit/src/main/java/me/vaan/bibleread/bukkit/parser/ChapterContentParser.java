@@ -1,4 +1,4 @@
-package me.vaan.bibleread.bukkit;
+package me.vaan.bibleread.bukkit.parser;
 
 import me.vaan.bibleread.api.data.chapter.ChapterData;
 import me.vaan.bibleread.api.data.chapter.TranslationBookChapter;

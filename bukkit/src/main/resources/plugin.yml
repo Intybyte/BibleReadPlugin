@@ -2,3 +2,7 @@ name: BibleReadPlugin
 version: '${version}'
 main: me.vaan.bibleread.bukkit.BibleReadPlugin
 api-version: '1.16'
+
+permissions:
+  biblereadplugin.update:
+    default: op

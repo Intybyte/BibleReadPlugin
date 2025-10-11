@@ -1,4 +1,4 @@
-package me.vaan.bibleread.bukkit.data;
+package me.vaan.bibleread.api.data.access;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -9,8 +9,11 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 @AllArgsConstructor
-public class ChapterPointer {
+public class TranslationBookPair {
     private String translationId;
     private String bookId;
-    private int chapter;
+
+    public boolean isValid() {
+        return translationId != null && bookId != null;
+    }
 }
