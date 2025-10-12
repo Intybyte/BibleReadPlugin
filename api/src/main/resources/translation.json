@@ -16,7 +16,25 @@
       "prev_chapter": "[Previous Chapter]",
       "prev_chapter_tooltip": "Click to go to the previous chapter",
 
-      "curr_chapter": "[Current %d]"
+      "curr_chapter": "[Chapter: %d]"
+    },
+    "it_IT": {
+      "invalid_book_translation_pair": "§4[Errore]§r Traduzione e/o libro invalido, selezionali con l'appropriato comando",
+      "invalid_book": "§4[Errore]§r Libro invalido",
+      "invalid_translation": "§4[Errore]§r Traduzione invalida",
+      "network_error_not_found": "§4[Errore]§r Non trovato, oppure c'è stato un errore di rete",
+
+      "successful": "§2[Successo]§r Operazione completata correttamente",
+
+      "content_mapper": "§0- §6%s = §b%s",
+
+      "next_chapter": "[Prossimo Capitolo]",
+      "next_chapter_tooltip": "Clicca per andare al prossimo capitolo",
+
+      "prev_chapter": "[Capitolo Precedente]",
+      "prev_chapter_tooltip": "Clicca per andare al capitolo precedente",
+
+      "curr_chapter": "[Capitolo: %d]"
     }
   }
 }
