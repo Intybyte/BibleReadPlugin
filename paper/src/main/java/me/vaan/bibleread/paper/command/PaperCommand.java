@@ -12,31 +12,32 @@ import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import me.vaan.bibleread.api.access.AccessManager;
 import me.vaan.bibleread.api.connection.ConnectionHandler;
+import me.vaan.bibleread.api.data.access.ChapterPointer;
 import me.vaan.bibleread.api.data.access.PlayerDataManager;
 import me.vaan.bibleread.api.data.access.TranslationBookPair;
 import me.vaan.bibleread.api.data.chapter.TranslationBookChapter;
 import me.vaan.bibleread.bukkit.PluginHolder;
 import me.vaan.bibleread.bukkit.parser.ChapterContentParser;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 @CommandAlias("bibleread")
 @Description("Main bibleread command")
 public class PaperCommand extends BaseCommand {
+
+    private final Map<ChapterPointer, Dialog> dialogCache = new ConcurrentHashMap<>();
+
     @Subcommand("chapter")
     public class ChapterCommand extends BaseCommand {
 
@@ -49,8 +50,14 @@ public class PaperCommand extends BaseCommand {
                 return;
             }
 
-            Executor mainExecutor = command -> Bukkit.getScheduler().runTask(PluginHolder.getInstance(), command);
+            ChapterPointer ptr = pair.toPointer(chapterId);
+            Dialog cachaedDialog = dialogCache.get(ptr);
+            if (cachaedDialog != null) {
+                player.showDialog(cachaedDialog);
+                return;
+            }
 
+            Executor mainExecutor = command -> Bukkit.getScheduler().runTask(PluginHolder.getInstance(), command);
             CompletableFuture<Optional<Dialog>> dialogProvider = AccessManager.getInstance().getChapter(pair.getTranslationId(), pair.getBookId(), chapterId).thenApplyAsync( (chapterOptional) -> {
                 if (chapterOptional.isEmpty()) {
                     player.sendMessage("Error");
@@ -72,6 +79,7 @@ public class PaperCommand extends BaseCommand {
                         PlainTextComponentSerializer.plainText().deserialize(collapsed),
                         width
                     );
+
                     Dialog dialog = Dialog.create((dialogRegistryBuilderFactory -> {
                         dialogRegistryBuilderFactory.empty()
                             .base(
@@ -103,6 +111,7 @@ public class PaperCommand extends BaseCommand {
                                 )
                             ));
                     }));
+                    dialogCache.put(ptr, dialog);
 
                     return Optional.of(dialog);
                 } catch (Exception e) {

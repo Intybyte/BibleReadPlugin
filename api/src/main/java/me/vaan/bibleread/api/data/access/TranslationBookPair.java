@@ -16,4 +16,8 @@ public class TranslationBookPair {
     public boolean isValid() {
         return translationId != null && bookId != null;
     }
+
+    public ChapterPointer toPointer(int chapter) {
+        return new ChapterPointer(translationId, bookId, chapter);
+    }
 }
