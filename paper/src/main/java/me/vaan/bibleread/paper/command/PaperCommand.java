@@ -74,15 +74,6 @@ public class PaperCommand extends BaseCommand {
                         width
                     );
 
-                    /*
-                    Dialog buttons = Dialog.create(dialogRegistryBuilderFactory -> {
-                        dialogRegistryBuilderFactory.empty()
-                            .type(DialogType.confirmation(
-                                getChapterButton(player, "prev_chapter", currentChapter - 1, maxChapter),
-                                getChapterButton(player, "next_chapter", currentChapter + 1, maxChapter)
-                            ));
-                    });*/
-
                     Dialog dialog = Dialog.create((dialogRegistryBuilderFactory -> {
                         dialogRegistryBuilderFactory.empty()
                             .base(
