@@ -18,9 +18,9 @@ public class LocaleHolder implements MessageReceiver {
         this(locale.getLanguage() + "_" + locale.getCountry(), messageSender);
     }
 
-    public void sendMessage(String key, String... arguments) {
+    public void sendMessage(String key, Object... arguments) {
         String message = FileManager.getInstance().message(this.locale, key);
-        String parsed = String.format(message, (Object[]) arguments);
+        String parsed = String.format(message, arguments);
         messageSender.accept(parsed);
     }
 }
