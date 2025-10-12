@@ -53,8 +53,11 @@ public class FileManager {
     }
 
     public String message(Locale locale, String translationKey) {
-        String localeKey = locale.getLanguage() + "_" + locale.getCountry();
-        Map<String, String> messageMap = this.localeTranslation.getLocaleMap().get(localeKey);
+        return message(locale.getLanguage() + "_" + locale.getCountry(), translationKey);
+    }
+
+    public String message(String locale, String translationKey) {
+        Map<String, String> messageMap = this.localeTranslation.getLocaleMap().get(locale);
         if (messageMap == null) {
             return this.localeTranslation.getLocaleMap().get("en_US").get(translationKey);
         }

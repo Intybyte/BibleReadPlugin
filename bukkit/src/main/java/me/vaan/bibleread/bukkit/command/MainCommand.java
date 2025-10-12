@@ -13,6 +13,8 @@ import me.vaan.bibleread.api.data.book.TranslationBooks;
 import me.vaan.bibleread.api.data.chapter.TranslationBookChapter;
 import me.vaan.bibleread.api.data.translation.AvailableTranslations;
 import me.vaan.bibleread.api.data.translation.Translation;
+import me.vaan.bibleread.api.file.FileManager;
+import me.vaan.bibleread.api.file.translation.LocaleHolder;
 import me.vaan.bibleread.bukkit.PluginHolder;
 import me.vaan.bibleread.bukkit.parser.BookParser;
 import me.vaan.bibleread.api.data.access.PlayerDataManager;
@@ -61,17 +63,20 @@ public class MainCommand extends BaseCommand {
 
         @Subcommand("info")
         public void info(Player player) {
+            LocaleHolder holder = new LocaleHolder(player.getLocale(), player::sendMessage);
+
             TranslationBookPair pair = PlayerDataManager.getData(player.getUniqueId());
             String translationKey = pair.getTranslationId();
+
             if (translationKey == null) {
-                player.sendMessage("Error");
+                holder.sendMessage("invalid_book_translation_pair");
                 return;
             }
 
             Executor mainExecutor = command -> Bukkit.getScheduler().runTask(PluginHolder.getInstance(), command);
             AccessManager.getInstance().getTranslations().getOrQueryData().thenAcceptAsync((translationBooksOptional) -> {
                 if (!translationBooksOptional.isPresent()) {
-                    player.sendMessage("Error");
+                    holder.sendMessage("network_error_not_found");
                     return;
                 }
 
@@ -88,14 +93,15 @@ public class MainCommand extends BaseCommand {
         @Subcommand("set")
         @CommandCompletion("@translations")
         public void set(Player player, String translation) {
+            LocaleHolder holder = new LocaleHolder(player.getLocale(), player::sendMessage);
             boolean valid = AccessManager.getInstance().getTranslations().getTranslationIds().contains(translation);
             if (!valid) {
-                player.sendMessage("Error");
+                holder.sendMessage("invalid_translation");
                 return;
             }
 
             PlayerDataManager.setTranslationBook(player.getUniqueId(), translation);
-            player.sendMessage("Success");
+            holder.sendMessage("successful");
         }
     }
 
