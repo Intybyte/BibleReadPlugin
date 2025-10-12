@@ -12,15 +12,13 @@ import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import me.vaan.bibleread.api.access.AccessManager;
 import me.vaan.bibleread.api.connection.ConnectionHandler;
-import me.vaan.bibleread.api.data.access.ChapterPointer;
 import me.vaan.bibleread.api.data.access.PlayerDataManager;
 import me.vaan.bibleread.api.data.access.TranslationBookPair;
 import me.vaan.bibleread.api.data.chapter.TranslationBookChapter;
 import me.vaan.bibleread.api.file.FileManager;
 import me.vaan.bibleread.api.file.translation.LocaleHolder;
 import me.vaan.bibleread.bukkit.PluginHolder;
-import me.vaan.bibleread.bukkit.parser.ChapterContentParser;
-import net.kyori.adventure.dialog.DialogLike;
+import me.vaan.bibleread.api.parser.ChapterContentParser;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -32,7 +30,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.Predicate;
 
 @SuppressWarnings("UnstableApiUsage")
 @CommandAlias("bibleread")

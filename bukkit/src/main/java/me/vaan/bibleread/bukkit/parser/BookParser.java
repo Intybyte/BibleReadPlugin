@@ -1,6 +1,7 @@
 package me.vaan.bibleread.bukkit.parser;
 
 import me.vaan.bibleread.api.data.chapter.TranslationBookChapter;
+import me.vaan.bibleread.api.parser.ChapterContentParser;
 import org.bukkit.map.MapFont;
 import org.bukkit.map.MinecraftFont;
 
