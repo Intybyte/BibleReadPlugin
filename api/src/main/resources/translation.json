@@ -8,7 +8,7 @@
 
       "successful": "§2[Success]§r Operation completed successfully",
 
-      "content_mapper": "§0- §6%s = §b%s",
+      "content_mapper": "§0- §6%s §f= §b%s",
 
       "next_chapter": "[Next Chapter]",
       "next_chapter_tooltip": "Click to go to the next chapter",
@@ -26,7 +26,7 @@
 
       "successful": "§2[Successo]§r Operazione completata correttamente",
 
-      "content_mapper": "§0- §6%s = §b%s",
+      "content_mapper": "§0- §6%s §f= §b%s",
 
       "next_chapter": "[Prossimo Capitolo]",
       "next_chapter_tooltip": "Clicca per andare al prossimo capitolo",
