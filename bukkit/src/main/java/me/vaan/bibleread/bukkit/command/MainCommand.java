@@ -47,10 +47,11 @@ public class MainCommand extends BaseCommand {
         @Subcommand("getBooks")
         @CommandCompletion("@languages")
         public void getBooks(Player player, String language) {
+            LocaleHolder holder = new LocaleHolder(player.getLocale(), player::sendMessage);
             Map<String, List<Translation>> languageMap = AccessManager.getInstance().getTranslations().getLanguageMap();
             List<Translation> tls = languageMap.get(language);
             if (tls == null) {
-                player.sendMessage("Error");
+                holder.sendMessage("invalid_language");
                 return;
             }
 
