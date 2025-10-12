@@ -1,6 +1,6 @@
 {
   "localeMap": {
-    "en_US": {
+    "en_us": {
       "invalid_book_translation_pair": "§4[Error]§r Invalid translation and/or book, select them with the appropriate command",
       "invalid_book": "§4[Error]§r Invalid book",
       "invalid_translation": "§4[Error]§r Invalid translation",
@@ -18,7 +18,7 @@
 
       "curr_chapter": "[Chapter: %d]"
     },
-    "it_IT": {
+    "it_it": {
       "invalid_book_translation_pair": "§4[Errore]§r Traduzione e/o libro invalido, selezionali con l'appropriato comando",
       "invalid_book": "§4[Errore]§r Libro invalido",
       "invalid_translation": "§4[Errore]§r Traduzione invalida",

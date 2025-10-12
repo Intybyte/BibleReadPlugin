@@ -59,12 +59,12 @@ public class FileManager {
     public String message(String locale, String translationKey) {
         Map<String, String> messageMap = this.localeTranslation.getLocaleMap().get(locale);
         if (messageMap == null) {
-            return this.localeTranslation.getLocaleMap().get("en_US").get(translationKey);
+            return this.localeTranslation.getLocaleMap().get("en_us").get(translationKey);
         }
 
         String message = messageMap.get(translationKey);
         if (message == null) {
-            return this.localeTranslation.getLocaleMap().get("en_US").get(translationKey);
+            return this.localeTranslation.getLocaleMap().get("en_us").get(translationKey);
         }
 
         return message;
