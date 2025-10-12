@@ -1,17 +1,14 @@
-package me.vaan.bibleread.bukkit.parser;
+package me.vaan.bibleread.api.parser;
 
 import me.vaan.bibleread.api.data.chapter.TranslationBookChapter;
-import me.vaan.bibleread.api.parser.ChapterContentParser;
-import org.bukkit.map.MapFont;
-import org.bukkit.map.MinecraftFont;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class BookParser {
-    public static class Result {
+public interface BookParser {
+    class Result {
         public final HashMap<Integer, String> finalPages;
         public final int pageNumber;
 
@@ -21,7 +18,7 @@ public class BookParser {
         }
     }
 
-    public static Result getParsed(TranslationBookChapter chapter) {
+    default Result getParsed(TranslationBookChapter chapter) {
         HashMap<Integer, String> finalPages = new HashMap<>();
         List<String> wordList = new ArrayList<>(2048);
         int pageNumber = 0;
@@ -53,12 +50,11 @@ public class BookParser {
                 finalPages.put(pageNumber, combined);
             }
         }
-        Result result = new Result(finalPages, pageNumber);
-        return result;
+        return new Result(finalPages, pageNumber);
     }
 
 
-    private static int lineBookSize(String str) {
+    default int lineBookSize(String str) {
         int lineCount = 1;
         int pixelWidth = 0;
         char[] array = str.toCharArray();
@@ -93,8 +89,7 @@ public class BookParser {
                 continue;
             }
 
-            MapFont.CharacterSprite sprite = MinecraftFont.Font.getChar(c);
-            int charWidth = sprite != null ? sprite.getWidth() : 6;
+            int charWidth = getCharWidth(c);
 
             if (bold && charWidth > 0 && c != ' ') {
                 charWidth++; // Bold adds 1 pixel width
@@ -111,4 +106,6 @@ public class BookParser {
 
         return lineCount;
     }
+
+    int getCharWidth(char c);
 }

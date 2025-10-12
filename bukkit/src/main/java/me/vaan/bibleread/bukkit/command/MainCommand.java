@@ -15,11 +15,12 @@ import me.vaan.bibleread.api.data.translation.AvailableTranslations;
 import me.vaan.bibleread.api.data.translation.Translation;
 import me.vaan.bibleread.api.file.FileManager;
 import me.vaan.bibleread.api.file.translation.LocaleHolder;
+import me.vaan.bibleread.api.parser.BookParser;
 import me.vaan.bibleread.bukkit.PluginHolder;
-import me.vaan.bibleread.bukkit.parser.BookParser;
 import me.vaan.bibleread.api.data.access.PlayerDataManager;
 import me.vaan.bibleread.api.data.access.ChapterPointer;
 import me.vaan.bibleread.api.data.access.TranslationBookPair;
+import me.vaan.bibleread.bukkit.parser.BukkitBookParser;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -246,6 +247,7 @@ public class MainCommand extends BaseCommand {
     }
 
     private static final HashMap<ChapterPointer, ItemStack> bookMap = new HashMap<>();
+    private static final BukkitBookParser bukkitParser = new BukkitBookParser();
     private static ItemStack getChapterBook(TranslationBookPair pair, TranslationBookChapter chapter, String locale) {
         ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
         int chpNumber = chapter.getChapter().getNumber();
@@ -261,7 +263,7 @@ public class MainCommand extends BaseCommand {
             meta.setGeneration(BookMeta.Generation.TATTERED);
             meta.setAuthor("Unknown");
 
-            BookParser.Result result = BookParser.getParsed(chapter);
+            BookParser.Result result = bukkitParser.getParsed(chapter);
 
             // Add pages to book
             for (int i = 0; i <= result.pageNumber; i++) {
