@@ -16,8 +16,11 @@ import me.vaan.bibleread.api.data.access.ChapterPointer;
 import me.vaan.bibleread.api.data.access.PlayerDataManager;
 import me.vaan.bibleread.api.data.access.TranslationBookPair;
 import me.vaan.bibleread.api.data.chapter.TranslationBookChapter;
+import me.vaan.bibleread.api.file.FileManager;
+import me.vaan.bibleread.api.file.translation.LocaleHolder;
 import me.vaan.bibleread.bukkit.PluginHolder;
 import me.vaan.bibleread.bukkit.parser.ChapterContentParser;
+import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -25,42 +28,33 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.function.Predicate;
 
+@SuppressWarnings("UnstableApiUsage")
 @CommandAlias("bibleread")
 @Description("Main bibleread command")
 public class PaperCommand extends BaseCommand {
-
-    private final Map<ChapterPointer, Dialog> dialogCache = new ConcurrentHashMap<>();
 
     @Subcommand("chapter")
     public class ChapterCommand extends BaseCommand {
 
         @Subcommand("openDialog")
-        @SuppressWarnings("UnstableApiUsage")
         public void openDialog(Player player, int chapterId) {
+            LocaleHolder holder = new LocaleHolder(player.getLocale(), player::sendMessage);
             TranslationBookPair pair = PlayerDataManager.getData(player.getUniqueId());
             if (!pair.isValid()) {
-                player.sendMessage("Error");
-                return;
-            }
-
-            ChapterPointer ptr = pair.toPointer(chapterId);
-            Dialog cachaedDialog = dialogCache.get(ptr);
-            if (cachaedDialog != null) {
-                player.showDialog(cachaedDialog);
+                holder.sendMessage("invalid_book_translation_pair");
                 return;
             }
 
             Executor mainExecutor = command -> Bukkit.getScheduler().runTask(PluginHolder.getInstance(), command);
             CompletableFuture<Optional<Dialog>> dialogProvider = AccessManager.getInstance().getChapter(pair.getTranslationId(), pair.getBookId(), chapterId).thenApplyAsync( (chapterOptional) -> {
                 if (chapterOptional.isEmpty()) {
-                    player.sendMessage("Error");
+                    player.sendMessage("network_error_not_found");
                     return Optional.empty();
                 }
 
@@ -80,38 +74,30 @@ public class PaperCommand extends BaseCommand {
                         width
                     );
 
+                    /*
+                    Dialog buttons = Dialog.create(dialogRegistryBuilderFactory -> {
+                        dialogRegistryBuilderFactory.empty()
+                            .type(DialogType.confirmation(
+                                getChapterButton(player, "prev_chapter", currentChapter - 1, maxChapter),
+                                getChapterButton(player, "next_chapter", currentChapter + 1, maxChapter)
+                            ));
+                    });*/
+
                     Dialog dialog = Dialog.create((dialogRegistryBuilderFactory -> {
                         dialogRegistryBuilderFactory.empty()
                             .base(
                                 DialogBase.builder(Component.text(title))
-                                    .body(Collections.singletonList(body))
+                                    .body(List.of(
+                                        body
+                                    ))
                                     .build())
-                            .type(DialogType.confirmation(
-                                ActionButton.create(
-                                    Component.text("Previous chapter"),
-                                    Component.text("Go to previous chapter if present."),
-                                    100,
-                                    DialogAction.customClick((r, a) -> {
-                                        if (currentChapter > 1) {
-                                            player.closeInventory();
-                                            openDialog(player, currentChapter - 1);
-                                        }
-                                    }, ClickCallback.Options.builder().build())
-                                ),
-                                ActionButton.create(
-                                    Component.text("Next chapter"),
-                                    Component.text("Go to next chapter if present."),
-                                    100,
-                                    DialogAction.customClick((r, a) -> {
-                                        if (currentChapter < maxChapter) {
-                                            player.closeInventory();
-                                            openDialog(player, currentChapter + 1);
-                                        }
-                                    }, ClickCallback.Options.builder().build())
-                                )
+                            .type(DialogType.multiAction(
+                                List.of(
+                                    getChapterButton(player, "prev_chapter", currentChapter - 1, maxChapter),
+                                    getChapterButton(player, "next_chapter", currentChapter + 1, maxChapter)
+                                ), null, 3
                             ));
                     }));
-                    dialogCache.put(ptr, dialog);
 
                     return Optional.of(dialog);
                 } catch (Exception e) {
@@ -122,13 +108,31 @@ public class PaperCommand extends BaseCommand {
 
             dialogProvider.thenAcceptAsync((dialogOptional) -> {
                 if (dialogOptional.isEmpty()) {
-                    player.sendMessage("Error");
+                    player.sendMessage("network_error_not_found");
                     return;
                 }
 
                 player.showDialog(dialogOptional.get());
             }, mainExecutor);
         }
-    }
 
+        private ActionButton getChapterButton(Player player, String key, int updateChapter, int maxChapter) {
+            FileManager fmg = FileManager.getInstance();
+            String locale = player.getLocale();
+            String chapterMessage = fmg.message(locale, key);
+            String tooltipMessage = fmg.message(locale, key + "_tooltip");
+
+            return ActionButton.create(
+                Component.text(chapterMessage),
+                Component.text(tooltipMessage),
+                128,
+                DialogAction.customClick((r, a) -> {
+                    if (1 <= updateChapter && updateChapter <= maxChapter) {
+                        player.closeInventory();
+                        openDialog(player, updateChapter);
+                    }
+                }, ClickCallback.Options.builder().build())
+            );
+        }
+    }
 }

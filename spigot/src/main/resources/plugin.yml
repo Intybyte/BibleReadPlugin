@@ -4,5 +4,7 @@ main: me.vaan.bibleread.spigot.BibleReadPlugin
 api-version: '1.16'
 
 permissions:
+  biblereadplugin.getbook:
+    default: op
   biblereadplugin.update:
     default: op

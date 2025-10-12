@@ -1,0 +1,22 @@
+{
+  "localeMap": {
+    "en_US": {
+      "invalid_book_translation_pair": "§4[Error]§r Invalid translation and/or book, select them with the appropriate command",
+      "invalid_book": "§4[Error]§r Invalid book",
+      "invalid_translation": "§4[Error]§r Invalid translation",
+      "network_error_not_found": "§4[Error]§r Not found, maybe there was a network error",
+
+      "successful": "§2[Success]§r Operation completed successfully",
+
+      "content_mapper": "§0- §6%s = §b%s",
+
+      "next_chapter": "[Next Chapter]",
+      "next_chapter_tooltip": "Click to go to the next chapter",
+
+      "prev_chapter": "[Previous Chapter]",
+      "prev_chapter_tooltip": "Click to go to the previous chapter",
+
+      "curr_chapter": "[Current %d]"
+    }
+  }
+}

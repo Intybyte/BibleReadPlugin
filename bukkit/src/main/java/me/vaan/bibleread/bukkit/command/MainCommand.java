@@ -22,10 +22,11 @@ import me.vaan.bibleread.api.data.access.ChapterPointer;
 import me.vaan.bibleread.api.data.access.TranslationBookPair;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -85,7 +86,9 @@ public class MainCommand extends BaseCommand {
                 Translation translation = availableTranslations.getTranslationMap().get(translationKey);
 
                 Map<String, String> fieldMap = FieldValueExtractor.getFieldStringValues(translation, "availableFormats", "listOfBooksApiLink");
-                fieldMap.forEach((f, v) -> player.sendMessage("- " + f + ": " + v));
+
+                holder.sendMessage("successful");
+                fieldMap.forEach((f, v) -> holder.sendMessage("content_mapper", f, v));
 
             }, mainExecutor);
         }
@@ -111,30 +114,34 @@ public class MainCommand extends BaseCommand {
 
         @Subcommand("info")
         public void info(Player player) {
+            LocaleHolder holder = new LocaleHolder(player.getLocale(), player::sendMessage);
+
             TranslationBookPair pair = PlayerDataManager.getData(player.getUniqueId());
             String translation = pair.getTranslationId();
             String bookId = pair.getBookId();
+
             if (!pair.isValid()) {
-                player.sendMessage("Error");
+                holder.sendMessage("invalid_book_translation_pair");
                 return;
             }
 
             Executor mainExecutor = command -> Bukkit.getScheduler().runTask(PluginHolder.getInstance(), command);
             AccessManager.getInstance().getTranslationBooks(translation).thenAcceptAsync((translationBooksOptional) -> {
                 if (!translationBooksOptional.isPresent()) {
-                    player.sendMessage("Error");
+                    holder.sendMessage("network_error_not_found");
                     return;
                 }
 
                 TranslationBooks books = translationBooksOptional.get();
                 TranslationBook book = books.getBookMap().get(bookId);
                 if (book == null) {
-                    player.sendMessage("Error");
+                    holder.sendMessage("network_error_not_found");
                     return;
                 }
 
                 Map<String, String> fieldMap = FieldValueExtractor.getFieldStringValues(book);
-                fieldMap.forEach((f, v) -> player.sendMessage("- " + f + ": " + v));
+                holder.sendMessage("successful");
+                fieldMap.forEach((f, v) -> holder.sendMessage("content_mapper", f, v));
 
             }, mainExecutor);
         }
@@ -142,27 +149,29 @@ public class MainCommand extends BaseCommand {
         @Subcommand("set")
         @CommandCompletion("@books")
         public void set(Player player, String bookId) {
+            LocaleHolder holder = new LocaleHolder(player.getLocale(), player::sendMessage);
+
             TranslationBookPair pair = PlayerDataManager.getData(player.getUniqueId());
             String translation = pair.getTranslationId();
             if (translation == null) {
-                player.sendMessage("Error");
+                holder.sendMessage("invalid_translation");
                 return;
             }
 
             Executor mainExecutor = command -> Bukkit.getScheduler().runTask(PluginHolder.getInstance(), command);
             AccessManager.getInstance().getTranslationBooks(translation).thenAcceptAsync((translationBooksOptional) -> {
                 if (!translationBooksOptional.isPresent()) {
-                    player.sendMessage("Error");
+                    holder.sendMessage("invalid_book");
                     return;
                 }
 
                 if (!translationBooksOptional.get().getBookMap().containsKey(bookId)) {
-                    player.sendMessage("Error");
+                    holder.sendMessage("network_error_not_found");
                     return;
                 }
 
                 PlayerDataManager.setBookId(player.getUniqueId(), bookId);
-                player.sendMessage("Success");
+                holder.sendMessage("successful");
 
             }, mainExecutor);
         }
@@ -173,47 +182,50 @@ public class MainCommand extends BaseCommand {
 
         @Subcommand("openBook")
         public void openBook(Player player, int chapterId) {
+            LocaleHolder holder = new LocaleHolder(player.getLocale(), player::sendMessage);
             TranslationBookPair pair = PlayerDataManager.getData(player.getUniqueId());
             if (!pair.isValid()) {
-                player.sendMessage("Error");
+                holder.sendMessage("invalid_book_translation_pair");
                 return;
             }
 
             Executor mainExecutor = command -> Bukkit.getScheduler().runTask(PluginHolder.getInstance(), command);
             AccessManager.getInstance().getChapter(pair.getTranslationId(), pair.getBookId(), chapterId).thenAcceptAsync( (chapterOptional) -> {
                 if (!chapterOptional.isPresent()) {
-                    player.sendMessage("Error");
+                    holder.sendMessage("network_error_not_found");
                     return;
                 }
 
                 TranslationBookChapter chapter = chapterOptional.get();
 
 
-                ItemStack book = getChapterBook(pair, chapter);
+                ItemStack book = getChapterBook(pair, chapter, player.getLocale());
                 player.openBook(book);
-                //player.getInventory().addItem(book);
             }, mainExecutor);
         }
 
         @Subcommand("getBook")
+        @CommandPermission("biblereadplugin.getbook")
         public void getBook(Player player, int chapterId) {
+            LocaleHolder holder = new LocaleHolder(player.getLocale(), player::sendMessage);
             TranslationBookPair pair = PlayerDataManager.getData(player.getUniqueId());
+
             if (!pair.isValid()) {
-                player.sendMessage("Error");
+                holder.sendMessage("invalid_book_translation_pair");
                 return;
             }
 
             Executor mainExecutor = command -> Bukkit.getScheduler().runTask(PluginHolder.getInstance(), command);
             AccessManager.getInstance().getChapter(pair.getTranslationId(), pair.getBookId(), chapterId).thenAcceptAsync( (chapterOptional) -> {
                 if (!chapterOptional.isPresent()) {
-                    player.sendMessage("Error");
+                    holder.sendMessage("network_error_not_found");
                     return;
                 }
 
                 TranslationBookChapter chapter = chapterOptional.get();
 
 
-                ItemStack book = getChapterBook(pair, chapter);
+                ItemStack book = getChapterBook(pair, chapter, player.getLocale());
                 player.getInventory().addItem(book);
             }, mainExecutor);
         }
@@ -225,13 +237,15 @@ public class MainCommand extends BaseCommand {
     public class Update extends BaseCommand {
 
         @Subcommand("data")
-        private void data(CommandSender sender) {
+        private void data(Player player) {
+            LocaleHolder holder = new LocaleHolder(player.getLocale(), player::sendMessage);
+            holder.sendMessage("successful");
             AccessManager.getInstance().updateAll();
         }
     }
 
     private static final HashMap<ChapterPointer, ItemStack> bookMap = new HashMap<>();
-    private static ItemStack getChapterBook(TranslationBookPair pair, TranslationBookChapter chapter) {
+    private static ItemStack getChapterBook(TranslationBookPair pair, TranslationBookChapter chapter, String locale) {
         ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
         int chpNumber = chapter.getChapter().getNumber();
         ChapterPointer ptr = new ChapterPointer(pair.getTranslationId(), pair.getBookId(), chpNumber);
@@ -255,8 +269,14 @@ public class MainCommand extends BaseCommand {
                 meta.addPage(page);
             }
 
+            FileManager fmg = FileManager.getInstance();
             int totalChapters = chapter.getBook().getNumberOfChapters();
-            TextComponent current = new TextComponent("[Current: " + chpNumber + "]\n");
+            String currChapter = String.format(
+                fmg.message(locale, "curr_chapter"),
+                chpNumber
+            );
+
+            TextComponent current = new TextComponent(currChapter + "\n");
             current.setBold(true);
             BaseComponent[] nextPages = new BaseComponent[] {
                 current,
@@ -265,28 +285,12 @@ public class MainCommand extends BaseCommand {
             };
 
             if (chpNumber < totalChapters) {
-                TextComponent clickableText = new TextComponent("[Next Chapter]\n");
-                clickableText.setBold(true);
-                clickableText.setClickEvent(
-                    new ClickEvent(
-                        ClickEvent.Action.RUN_COMMAND,
-                        "/bibleread chapter get " + (chpNumber + 1)
-                    )
-                );
-
+                TextComponent clickableText = getChapterComponent(locale, "next_chapter", chpNumber - 1);
                 nextPages[1] = clickableText;
             }
 
             if (1 < chpNumber) {
-                TextComponent clickableText = new TextComponent("[Previous Chapter]\n");
-                clickableText.setBold(true);
-                clickableText.setClickEvent(
-                    new ClickEvent(
-                        ClickEvent.Action.RUN_COMMAND,
-                        "/bibleread chapter get " + (chpNumber - 1)
-                    )
-                );
-
+                TextComponent clickableText = getChapterComponent(locale, "prev_chapter", chpNumber + 1);
                 nextPages[2] = clickableText;
             }
 
@@ -299,5 +303,24 @@ public class MainCommand extends BaseCommand {
 
         bookMap.put(ptr, book);
         return book;
+    }
+
+    private static TextComponent getChapterComponent(String locale, String key, int updateChapter) {
+        FileManager fmg = FileManager.getInstance();
+        String chapterMessage = fmg.message(locale, key);
+        String tooltipMessage = fmg.message(locale, key + "_tooltip");
+
+        TextComponent clickableText = new TextComponent(chapterMessage + "\n");
+        clickableText.setBold(true);
+        clickableText.setHoverEvent(
+            new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(tooltipMessage))
+        );
+        clickableText.setClickEvent(
+            new ClickEvent(
+                ClickEvent.Action.RUN_COMMAND,
+                "/bibleread chapter openBook " + updateChapter
+            )
+        );
+        return clickableText;
     }
 }
