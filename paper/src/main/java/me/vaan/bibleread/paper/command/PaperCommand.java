@@ -78,9 +78,7 @@ public class PaperCommand extends BaseCommand {
                         dialogRegistryBuilderFactory.empty()
                             .base(
                                 DialogBase.builder(Component.text(title))
-                                    .body(List.of(
-                                        body
-                                    ))
+                                    .body(Collections.singletonList(body))
                                     .build())
                             .type(DialogType.multiAction(
                                 List.of(
