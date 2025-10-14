@@ -25,7 +25,7 @@ dependencies {
 tasks.named<ShadowJar>("shadowJar") {
     relocate("co.aikar.commands", "me.vaan.bibleread.shaded.acf")
     relocate("co.aikar.locales", "me.vaan.bibleread.shaded.locales")
-    relocate("com.google.code.gson", "me.vaan.bibleread.shaded.gson")
+    relocate("com.google.gson", "me.vaan.bibleread.shaded.gson")
 }
 
 tasks.named("build") {
