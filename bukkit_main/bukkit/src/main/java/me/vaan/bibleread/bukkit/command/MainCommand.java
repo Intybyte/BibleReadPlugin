@@ -45,7 +45,7 @@ public class MainCommand extends BaseCommand {
     @Subcommand("language")
     public class LanguageCommand extends BaseCommand {
 
-        @Subcommand("getBooks")
+        @Subcommand("getTranslations")
         @CommandCompletion("@languages")
         public void getBooks(Player player, String language) {
             LocaleHolder holder = new LocaleHolder(player.getLocale(), player::sendMessage);
