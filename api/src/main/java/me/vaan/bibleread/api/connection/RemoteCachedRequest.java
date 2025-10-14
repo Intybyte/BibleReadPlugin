@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -106,12 +107,21 @@ public class RemoteCachedRequest<T> {
                 return;
             }
 
-            File zipFile = getFile();
-            Gson gson = new Gson();
+            this.data = CompletableFuture.supplyAsync(this::loadInternal, ConnectionHandler.getInstance().getConnectionExecutor());
+        } finally {
+            lock.unlock();
+        }
+    }
 
+    protected Optional<T> loadInternal() {
+        Gson gson = new Gson();
+
+        try {
+            File zipFile = getFile();
             try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFile.toPath()))) {
 
                 ZipEntry entry;
+                Optional<T> fileData = Optional.empty();
                 while ((entry = zis.getNextEntry()) != null) {
                     if (entry.getName().equals(ZIP_ENTRY_NAME)) {
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -123,25 +133,26 @@ public class RemoteCachedRequest<T> {
 
                         String json = baos.toString("UTF-8");
                         T loaded = gson.fromJson(json, type);
-                        this.data = CompletableFuture.completedFuture(
-                            Optional.of(
-                                loaded
-                            )
-                        );
+                        fileData = Optional.of(loaded);
+                        zis.closeEntry();
+                        break;
                     }
 
                     zis.closeEntry();
                 }
 
+                return fileData;
             }
         } catch (IOException e) {
-            this.data = CompletableFuture.completedFuture(Optional.empty());
-        } finally {
-            lock.unlock();
+            return Optional.empty();
         }
     }
 
     public CompletableFuture<Optional<T>> getOrQueryData() {
+        if (data != null && data.isDone() && data.join().isPresent()) {
+            return data;
+        }
+
         ExecutorService e = ConnectionHandler.getInstance().getConnectionExecutor();
         return data.thenApplyAsync((result) -> {
             if(result.isPresent()) {
