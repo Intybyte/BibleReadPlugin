@@ -5,9 +5,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.spongepowered.api.entity.living.player.Player;
 
-import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
-
 public class PlayerLocale extends LocaleHolder {
     public PlayerLocale(Player player) {
         super(player.locale(), (msg) -> sendMessage(player, msg));

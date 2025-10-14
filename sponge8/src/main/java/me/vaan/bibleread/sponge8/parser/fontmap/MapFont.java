@@ -1,8 +1,9 @@
 package me.vaan.bibleread.sponge8.parser.fontmap;
 
-import java.util.HashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
 
 /**
  * Represents a bitmap font drawable to a map.
