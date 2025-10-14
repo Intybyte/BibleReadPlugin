@@ -149,7 +149,7 @@ public class RemoteCachedRequest<T> {
     }
 
     public CompletableFuture<Optional<T>> getOrQueryData() {
-        if (data != null && data.isDone() && data.join().isPresent()) {
+        if (data.isDone() && data.join().isPresent()) {
             return data;
         }
 
