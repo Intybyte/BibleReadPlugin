@@ -29,7 +29,7 @@ dependencies {
     compileOnly "io.papermc.paper:paper-api:1.21.7-R0.1-SNAPSHOT"
     implementation(project(":api"))
     implementation(project(":bukkit"))
-    implementation "co.aikar:acf-bukkit:0.5.1-SNAPSHOT"
+    implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
 }
 
 def targetJavaVersion = 21
