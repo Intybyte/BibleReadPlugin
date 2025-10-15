@@ -89,24 +89,24 @@ public class AccessManager {
         Map<Integer, RemoteCachedRequest<TranslationBookChapter>> chapterMap = bookMap.get(bookId);
 
         // Get or create the RemoteCachedRequest for the chapter
-        return chapterMap.computeIfAbsent(chapterId, id ->
-            new RemoteCachedRequest<>(
-                TranslationBookChapter.class,
-                String.format("%s/%s/%d.json", translation, bookId, id)
-            )
-        ).getOrQueryData().thenCombineAsync(bookSize, (chapter, size) -> {
+        return bookSize.thenComposeAsync((size) -> {
             if (!size.isPresent()) {
                 // If we can't determine the book size, reject the chapter to be safe
-                return Optional.empty();
+                return CompletableFuture.completedFuture(Optional.empty());
             }
 
             int maxChapter = size.get();
             if (maxChapter < chapterId) {
                 // Invalid chapter ID
-                return Optional.empty();
+                return CompletableFuture.completedFuture(Optional.empty());
             }
 
-            return chapter;
+            return chapterMap.computeIfAbsent(chapterId, id ->
+                new RemoteCachedRequest<>(
+                    TranslationBookChapter.class,
+                    String.format("%s/%s/%d.json", translation, bookId, id)
+                )
+            ).getOrQueryData();
         }, ConnectionHandler.getInstance().getConnectionExecutor());
     }
 }

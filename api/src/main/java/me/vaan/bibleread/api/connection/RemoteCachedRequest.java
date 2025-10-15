@@ -1,6 +1,7 @@
 package me.vaan.bibleread.api.connection;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import lombok.Getter;
 import me.vaan.bibleread.api.file.FileManager;
 import me.vaan.bibleread.api.file.FileUtil;
@@ -66,28 +67,32 @@ public class RemoteCachedRequest<T> {
             }
 
             try (InputStreamReader reader = new InputStreamReader(connection.getInputStream())) {
-                T obtained = gson.fromJson(reader, type);
-
-                File zipFile = getFile(); // will return a .zip file
-
                 try {
-                    try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFile.toPath()))) {;
-                        String json = gson.toJson(obtained);
-                        byte[] data = json.getBytes(StandardCharsets.UTF_8);
+                    T obtained = gson.fromJson(reader, type);
 
-                        ZipEntry entry = new ZipEntry(ZIP_ENTRY_NAME);
+                    File zipFile = getFile(); // will return a .zip file
 
-                        zos.putNextEntry(entry);
-                        zos.write(data);
-                        zos.closeEntry();
+                    try {
+                        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFile.toPath()))) {;
+                            String json = gson.toJson(obtained);
+                            byte[] data = json.getBytes(StandardCharsets.UTF_8);
+
+                            ZipEntry entry = new ZipEntry(ZIP_ENTRY_NAME);
+
+                            zos.putNextEntry(entry);
+                            zos.write(data);
+                            zos.closeEntry();
+                        }
+                    } catch (IOException zosError) {
+                        System.err.println("ZIPPING ERROR, this will prevent caching");
+                        zosError.printStackTrace();
                     }
-                } catch (IOException zosError) {
-                    System.err.println("ZIPPING ERROR, this will prevent caching");
-                    zosError.printStackTrace();
-                }
 
-                connection.disconnect();
-                return Optional.of(obtained);
+                    connection.disconnect();
+                    return Optional.of(obtained);
+                } catch (JsonSyntaxException e) { // network error? no chapter exists?
+                    return Optional.empty();
+                }
             }
 
         } catch (Exception e) {
