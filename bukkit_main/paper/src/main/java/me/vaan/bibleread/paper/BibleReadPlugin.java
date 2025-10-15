@@ -1,5 +1,7 @@
 package me.vaan.bibleread.paper;
 
+import co.aikar.commands.BukkitCommandManager;
+import co.aikar.commands.PaperCommandManager;
 import me.vaan.bibleread.api.access.AccessManager;
 import me.vaan.bibleread.api.connection.ConnectionHandler;
 import me.vaan.bibleread.api.data.access.PlayerDataManager;
@@ -23,9 +25,9 @@ public class BibleReadPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        BibleCommandManager bcm = new BibleCommandManager(this);
-        bcm.registerCommand(new MainCommand());
-        bcm.registerCommand(new PaperCommand());
+        BibleCommandManager bcm = new BibleCommandManager(new PaperCommandManager(this));
+        bcm.getCommandManager().registerCommand(new MainCommand());
+        bcm.getCommandManager().registerCommand(new PaperCommand());
     }
 
     @Override

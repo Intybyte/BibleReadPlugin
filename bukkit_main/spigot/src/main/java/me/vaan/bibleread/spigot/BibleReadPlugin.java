@@ -1,5 +1,6 @@
 package me.vaan.bibleread.spigot;
 
+import co.aikar.commands.BukkitCommandManager;
 import me.vaan.bibleread.api.access.AccessManager;
 import me.vaan.bibleread.api.connection.ConnectionHandler;
 import me.vaan.bibleread.api.data.access.PlayerDataManager;
@@ -22,8 +23,8 @@ public class BibleReadPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        BibleCommandManager bcm = new BibleCommandManager(this);
-        bcm.registerCommand(new MainCommand());
+        BibleCommandManager bcm = new BibleCommandManager(new BukkitCommandManager(this));
+        bcm.getCommandManager().registerCommand(new MainCommand());
     }
 
     @Override

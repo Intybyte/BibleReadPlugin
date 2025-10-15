@@ -3,22 +3,25 @@ package me.vaan.bibleread.bukkit.command;
 import co.aikar.commands.BukkitCommandCompletionContext;
 import co.aikar.commands.BukkitCommandManager;
 import co.aikar.commands.CommandCompletions;
+import lombok.Getter;
 import me.vaan.bibleread.api.access.AccessManager;
 import me.vaan.bibleread.api.data.access.PlayerDataManager;
 import me.vaan.bibleread.api.data.access.TranslationBookPair;
 import me.vaan.bibleread.api.data.book.TranslationBooks;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import java.util.Collections;
 import java.util.Optional;
 
-public class BibleCommandManager extends BukkitCommandManager {
-    public BibleCommandManager(Plugin plugin) {
-        super(plugin);
+@Getter
+public class BibleCommandManager {
+    private final BukkitCommandManager commandManager;
+
+    public BibleCommandManager(BukkitCommandManager commandManager) {
+        this.commandManager = commandManager;
         AccessManager accessManager = AccessManager.getInstance();
 
-        CommandCompletions<BukkitCommandCompletionContext> commandCompletions = this.getCommandCompletions();
+        CommandCompletions<BukkitCommandCompletionContext> commandCompletions = commandManager.getCommandCompletions();
         commandCompletions.registerAsyncCompletion(
             "translations",
             context -> accessManager.getTranslations().getTranslationIds()
