@@ -78,6 +78,11 @@ public class AccessManager {
     }
 
     public CompletableFuture<Optional<TranslationBookChapter>> getChapter(String translation, String bookId, int chapterId) {
+        // Don't do this, just don't
+        if (chapterId <= 0) {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
+
         CompletableFuture<Optional<Integer>> bookSize = getBookSize(translation, bookId);
 
         // Ensure translationBookChapterMapping has the translation key
