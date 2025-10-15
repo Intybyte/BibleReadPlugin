@@ -235,7 +235,7 @@ public class MainCommand extends BaseCommand {
 
 
     @Subcommand("update")
-    @CommandPermission("PluginHolder.update")
+    @CommandPermission("biblereadplugin.update")
     public class Update extends BaseCommand {
 
         @Subcommand("data")
